@@ -35,8 +35,9 @@ cd www
 git clone https://github.com/r3motecontrol/Ghostpack-CompiledBinaries privesc
 git clone https://github.com/s0md3v/Arjun arjun
 git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite temp
-git clone https://github.com/rebootuser/LinEnum temp
-git clone https://github.com/M4ximuss/Powerless temp
+git clone https://github.com/rebootuser/LinEnum temp2
+git clone https://github.com/M4ximuss/Powerless temp3
+mv temp2 temp && mv temp3 temp
 git clone https://github.com/quentinhardy/odat.git oracle
 cd temp
 find ./ -name '*.exe' -exec cp -prv '{}' '../privesc/' ';'
