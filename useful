@@ -52,8 +52,7 @@ LinPeas.sh
 nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 10.10.10.97
 
 #HTTP 80
-feroxbuster -u http://10.10.10.97/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/
-directory-list-2.3-medium.txt --extract-links
+feroxbuster -u http://10.10.10.97/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --extract-links
 use raft after.
 nikto -host http://10.10.10.97 -C all -o nikto-scan.html
 nikto -host http://10.10.10.97 -p 80,8080,1234 -C all -o nikto-all.html
@@ -89,6 +88,9 @@ enumdomgroups
 ldapsearch -h 10.10.10.97 -p 389 -x -b "dc=megacorp,dc=local"
 ldapsearch -h 10.10.10.97 -x -s base namingcontexts
 ldapsearch -h 10.10.10.97 -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && cat ldap.out |grep -i memberof
+
+#Oracle 1521
+cd odat && python 3 odat.py all -s 10.10.10.97 -p 1521
 
 #MySQL 3306
 nmap -sV -Pn -vv --script=mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 10.10.10.97 -p 3306
