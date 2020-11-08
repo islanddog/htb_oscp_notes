@@ -94,7 +94,7 @@ echo "Setup Complete in $box Folder. Scanning using Rustscan now."
 cd ..
 cd $box
 #Have RustScan automatically scan the HTB VM
-rustscan --ulimit 5000 $box -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o $box-scan.html
+rustscan --ulimit 5000 -a $box -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o $box-scan.html
 firefox $box-scan.html
 firefox useful
 exit
