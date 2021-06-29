@@ -7,7 +7,7 @@ case $- in
     *i*) ;;
       *) return;;
 esac
-export PATH=/usr/local/bin:/usr/bin:/bin:/.cargo/bin:/usr/local/sbin:/usr/sbin:/sbin:~/.local/bin:/snap/bin:$PATH
+export PATH=/usr/local/bin:/usr/bin:/bin:$HOME/.cargo/bin:/usr/local/sbin:/usr/sbin:/sbin:~/.local/bin:/snap/bin:$PATH
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
