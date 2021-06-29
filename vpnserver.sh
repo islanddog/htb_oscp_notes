@@ -4,8 +4,6 @@ lab=$(cat /home/user/htb/htbvpn.ovpn | grep "remote " | cut -d " " -f 2 | cut -d
 
 if [[ $htbip == *"10."* ]]
 then
-   gwip=$(ip route | grep tun0 | grep via | cut -d " " -f 3)
-   ping=$(ping -c 1 $gwip -W 1 | sed '$!d;s|.*/\([0-9.]*\)/.*|\1|' | cut -c1-4)
    echo "$lab"
 else
    echo ""
