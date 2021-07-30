@@ -327,7 +327,7 @@ pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb857
 ```
 ### 161/162 #SNMP
 ```bash
-snmp-check -t ${PWD##*/} -c public
+snmp-check -c public ${PWD##*/}
 onesixtyone -c /usr/share/wordlist/SecLists/Discovery/SNMP/common-snmp-community-strings-onesixtyone.txt ${PWD##*/}
 ```
 
