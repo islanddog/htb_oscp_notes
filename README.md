@@ -5,6 +5,25 @@
 
 **Recent Changes**: Huge changes to multiple sections pulled from my Obsidian. I'm back =).
 
+## Required Links
+https://book.hacktricks.xyz/
+
+https://github.com/swisskyrepo/PayloadsAllTheThings
+
+https://gtfobins.github.io/
+
+https://lolbas-project.github.io/#
+
+https://www.exploit-db.com/
+
+https://www.exploit-db.com/google-hacking-database
+
+https://weibell.github.io/reverse-shell-generator/
+
+https://crackstation.net/
+
+https://gchq.github.io/CyberChef/
+
 ## RustScan - #rustscan 
 ```bash
 #Intial
