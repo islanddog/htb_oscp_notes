@@ -1,9 +1,9 @@
 # Useful Commands for HTB/OSCP
 **Website**: https://IslandDog.ky
 
-**Last Update**: 06/28/22
+**Last Update**: 07/12/23
 
-**Recent Changes**: Huge changes to multiple sections pulled from my Obsidian. I'm back =).
+**Recent Changes**: Huge changes to multiple sections pulled from my Obsidian. I lied, I wasn't back =). I *might* be back now.
 
 ## Required Links
 https://book.hacktricks.xyz/
