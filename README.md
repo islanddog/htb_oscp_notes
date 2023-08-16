@@ -532,5 +532,5 @@ bloodhound-python -u UserName -p "PassWord" -ns 10.10.11.158 -d domain.htb -c al
 sudo neo4j start
 ```
 
-![[id.png|20x20]] IslandDog - Christopher Soehnlein 2023
+IslandDog - Christopher Soehnlein 2023
 https://IslandDog.ky
