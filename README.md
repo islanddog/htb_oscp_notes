@@ -1,18 +1,28 @@
 # Useful Commands for HTB/OSCP
 > **Website**: https://IslandDog.ky
 > **Last Update**: 08/16/23
+> 
 > **Recent Changes**: Changes to multiple sections pulled from my Obsidian.
 
 ## Useful Links
 https://exploit-notes.hdks.org/
+
 [https://book.hacktricks.xyz/](https://book.hacktricks.xyz/)
+
 https://ppn.snovvcrash.rocks/
+
 [https://github.com/swisskyrepo/PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
+
 [https://gtfobins.github.io/](https://gtfobins.github.io/)
+
 [https://lolbas-project.github.io/#](https://lolbas-project.github.io/#)
+
 [https://weibell.github.io/reverse-shell-generator/](https://weibell.github.io/reverse-shell-generator/)
+
 [https://crackstation.net/](https://crackstation.net/)
+
 [https://gchq.github.io/CyberChef/](https://gchq.github.io/CyberChef/)
+
 
 ## RustScan - #rustscan 
 ```bash
@@ -533,4 +543,5 @@ sudo neo4j start
 ```
 
 IslandDog - Christopher Soehnlein 2023
+
 https://IslandDog.ky
